@@ -15,7 +15,7 @@ public class Versenyzo {
 
     @Override
     public String toString() {
-        return "Fuvar{" +
+        return "Versenyzo{" +
                 "name: " + name +
                 ", orszag: " + orszag +
                 ", technika: " + technika +
