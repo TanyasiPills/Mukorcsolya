@@ -1,16 +1,20 @@
 public class Versenyzo {
     String name;
     String orszag;
-    Float technika;
-    Float komponens;
+    float technika;
+    float komponens;
     int vonas;
 
     public Versenyzo(String[] data) {
         this.name = data[0];
         this.orszag = data[1];
-        this.technika = Float.valueOf(data[2]);
-        this.komponens = Float.valueOf(data[3]);
+        this.technika = Float.parseFloat(data[2]);
+        this.komponens = Float.parseFloat(data[3]);
         this.vonas = Integer.parseInt(data[4]);
+    }
+
+    public Float AllPoint(){
+        return (technika + komponens) - vonas;
     }
 
     @Override
