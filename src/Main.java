@@ -1,10 +1,14 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Main {
     static List<Versenyzo> listOfAll;
@@ -24,23 +28,35 @@ public class Main {
     private static void Feladatok()
     {
         try (Scanner scanner = new Scanner(System.in)) {
-            System.out.printf("A rövidprogramba elindult versenyzők száma: %d\n", listOfAll.size());
-            System.out.println(listOfTop.stream().anyMatch(e -> "HUN".equals(e.orszag)) ? "A magyar versenyző bejutott a döntőbe\n" : "A magyar versenyző nem jutott be a döntőbe\n");
+            System.out.printf("2.feladat\n\t A rövidprogramba elindult versenyzők száma: %d\n", listOfAll.size());
+            
+            System.out.println(listOfTop.stream().anyMatch(e -> "HUN".equals(e.orszag)) ? "3.feladat\n\tA magyar versenyző bejutott a döntőbe" : "3.feladat\n\tA magyar versenyző nem jutott be a döntőbe");
+            
+            System.out.println("5.feladat\n\tKérem a versenyző nevét:");
+
             float points = Osszpontszam(scanner.nextLine());
-            if(points > 0f) System.out.println(String.valueOf(points));
-            scanner.nextLine();
+            if(points > 0f) System.out.println(String.valueOf(points)+"\n");
+
+            Map<String, Long> countryCount = listOfTop.stream().collect(Collectors.groupingBy(v -> v.orszag,Collectors.counting()));
+            System.out.println("7.feladat");
+            countryCount.forEach((country, count) -> {
+                if(count >= 2) System.out.println("\t"+country + ": " + count + " versenyző");
+            });
+
+            Write(listOfTop, "vegeredmeny.csv");
         }
     }
 
     private static float Osszpontszam(String name)
     {
-        if(listOfAll.stream().anyMatch(e -> name.equals(e.name))){
-            float value = listOfAll.stream().filter(e -> name.equals(e.name)).map(Versenyzo::AllPoint).findFirst().orElse(0f);
-            value += listOfTop.stream().filter(e -> name.equals(e.name)).map(Versenyzo::AllPoint).findFirst().orElse(0f);
+        String nameLower = name.toLowerCase();
+        if(listOfAll.stream().anyMatch(e -> nameLower.equals(e.name.toLowerCase()))){
+            float value = listOfAll.stream().filter(e -> nameLower.equals(e.name.toLowerCase())).map(Versenyzo::AllPoint).findFirst().orElse(0f);
+            value += listOfTop.stream().filter(e -> nameLower.equals(e.name.toLowerCase())).map(Versenyzo::AllPoint).findFirst().orElse(0f);
             return value;
         }
         else{
-            System.out.println("Ilyen nevü versenyző nincs az adatbázisban");
+            System.out.println("Ilyen nevü versenyző nincs az adatbázisban\n");
             return 0f;
         }
     }
@@ -60,5 +76,28 @@ public class Main {
         }
 
         return list;
+    }
+
+    private static void Write(List<Versenyzo> list, String file)
+    {
+        list.sort((v1, v2) -> Float.compare(Osszpontszam(v2.name), Osszpontszam(v1.name)));
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) 
+        {
+            bw.write("Helyezet;Név;Ország;Pontszám");
+            bw.newLine();
+            for (int i = 0; i < 10; i++) {
+                Versenyzo versenyzo = list.get(i);
+                String line = String.join(";",
+                        String.valueOf(i+1),
+                        versenyzo.name,
+                        versenyzo.orszag,
+                        String.valueOf(Osszpontszam(versenyzo.name))
+                );
+                bw.write(line);
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

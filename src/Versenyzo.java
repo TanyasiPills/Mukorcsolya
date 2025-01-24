@@ -14,7 +14,8 @@ public class Versenyzo {
     }
 
     public Float AllPoint(){
-        return (technika + komponens) - vonas;
+        float result = (technika + komponens) - vonas;
+        return Math.round(result * 100) / 100f; 
     }
 
     @Override
